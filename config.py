@@ -21,7 +21,7 @@ class DevelopmentConfig(Config):
     MAIL_USE_TLS = True
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    SQLALCHEMY_DATABASE_URL = os.environ.get('DEV_DATABASE_URL',
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL',
              'mysql+pymysql://demo:test123@localhost:3306/demo')
 
 
