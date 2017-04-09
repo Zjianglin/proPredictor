@@ -35,13 +35,19 @@ def register():
                     password=form.password.data)
         db.session.add(user)
         db.session.commit()
+        '''
+        #just disable confirmation after register temporary.
         token = user.generate_confirmation_token()
         send_email(user.email, 'Confirm Your Account',
                     'auth/email/confirm', user=user, token=token)
         flash('A confirmation email has been sent to you be email')
+        '''
+        flash('Registered successfully. Welcome!')
         return redirect(url_for('main.index'))
     return render_template('auth/register.html', form=form)
 
+'''
+#just disable confirmation after register temporary.
 @auth.route('/confirm/<token>')
 @login_required
 def confirm(token):
@@ -75,3 +81,4 @@ def resend_confirmation():
                'auth/email/confirm', user=current_user, token=token)
     flash('A new confirmation has been sent to you by email')
     return redirect(url_for('main.index'))
+'''

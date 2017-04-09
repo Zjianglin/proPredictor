@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}Datasets{% endblock %}
+
+{% block page_content %}
+    {{ wtf.quick_form(form) }}
+    <div class="form-control-static">
+        <ul class="list-group-item-heading">
+            {%   for dataset in datasets %}
+            <li>{{ dataset | title }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

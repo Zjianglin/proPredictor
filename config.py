@@ -8,6 +8,7 @@ class Config:
     FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
     FLASKY_MAIL_SENDER = 'Flasky Admin <zjianglin@foxmail.com>'
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN')
+    UPLOADED_DATASETS_DEST = os.path.join(basedir, 'app', 'static', 'datasets')
 
     @staticmethod
     def init_app(app):
@@ -27,12 +28,12 @@ class DevelopmentConfig(Config):
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URL = os.environ.get('TEST_DATABASE_URL',
+    SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL',
              'mysql+pymysql://demo:test123@localhost:3306/demo')
 
 
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URL = os.environ.get('DATABASE_URL',
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL',
              'mysql+pymysql://demo:test123@localhost:3306/demo')
 
 config = {

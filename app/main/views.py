@@ -17,3 +17,9 @@ def index():
                            name=session.get('name'),
                            known=session.get('known', False),
                            current_time=datetime.utcnow())
+'''
+@main.route('/datasets')
+@login_required
+def datasets():
+    return render_template('datasets.html')
+'''

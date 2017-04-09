@@ -3,6 +3,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from flask import current_app
+from datetime import datetime
+import os
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -11,6 +13,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), unique=True, index=True)
     password_hash = db.Column(db.String(128), nullable=False)
     confirmed = db.Column(db.Boolean(), default=False)
+    estimators = db.relationship('Estimator', backref='user')
 
     def __repr__(self):
         return '<User {} {}>'.format(self.username, self.password_hash)
@@ -45,3 +48,58 @@ class User(UserMixin, db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
+
+
+class Dataset(db.Model):
+    __tablename__ = 'datasets'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), nullable=False, unique=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    estimators = db.relationship('Estimator', backref='dataset')
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+    def __repr__(self):
+        return '<{}: {}>'.format(self.id, self.name)
+
+    def get_dataset(self):
+        return os.path.join(current_app.config['UPLOADED_DATASETS_DEST'],
+                            self.name)
+
+class Estimator(db.Model):
+    __tablename__ = 'estimators'
+    id = db.Column(db.Integer, primary_key=True)
+    estimator = db.Column(db.Text, nullable=False)
+    numerical_features_str = db.Column(db.Text, nullable=True)
+    text_features_str = db.Column(db.Text, nullable=True)
+    target = db.Column(db.String(64), nullable=False)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    dataset_id = db.Column(db.Integer, db.ForeignKey('datasets.id'))
+
+    def __repr__(self):
+        return '<Estimator {}+{}: {}'.format(self.text_features,
+                                             self.numerical_features,
+                                             self.target)
+
+    @property
+    def numerical_features(self):
+        if self.numerical_features_str is not None:
+            return self.numerical_features_str.split('+')
+        else:
+            return []
+
+    @numerical_features.setter
+    def numerical_features(self, n_features=list([])):
+        self.numerical_features_str = '+'.join(n_features)
+
+    @property
+    def text_features(self):
+        if self.text_features_str is not None:
+            return self.text_features_str.split('+')
+        else:
+            return []
+
+    @text_features.setter
+    def text_features(self, t_features=list([])):
+        self.text_features_str = '+'.join(t_features)
+
