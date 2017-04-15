@@ -14,6 +14,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128), nullable=False)
     confirmed = db.Column(db.Boolean(), default=False)
     estimators = db.relationship('Estimator', backref='user')
+    datasets = db.relationship('Dataset', backref='user')
 
     def __repr__(self):
         return '<User {} {}>'.format(self.username, self.password_hash)
@@ -102,4 +103,3 @@ class Estimator(db.Model):
     @text_features.setter
     def text_features(self, t_features=list([])):
         self.text_features_str = '+'.join(t_features)
-

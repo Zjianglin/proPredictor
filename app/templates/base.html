@@ -18,7 +18,10 @@
             <ul class="nav navbar-nav">
 
                 <li><a href="{{ url_for('main.datasets_index') }}">Dataset</a></li>
-                <li><a href="/">Feature Engineering</a></li>
+                <li><a href="{{ url_for('main.features_index') }}">
+                        Feature Engineering
+                    </a>
+                </li>
                 <li><a href="/">Model building</a></li>
                 <li><a href="/">Predicting</a></li>
             </ul>
