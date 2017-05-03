@@ -19,11 +19,10 @@
 
                 <li><a href="{{ url_for('main.datasets_index') }}">Dataset</a></li>
                 <li><a href="{{ url_for('main.features_index') }}">
-                        Feature Engineering
+                        Feature
                     </a>
                 </li>
-                <li><a href="/">Model building</a></li>
-                <li><a href="/">Predicting</a></li>
+                <li><a href="{{ url_for('main.estimators_index') }}">Model</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
                 {% if current_user.is_authenticated %}

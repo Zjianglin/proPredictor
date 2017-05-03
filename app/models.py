@@ -69,37 +69,28 @@ class Dataset(db.Model):
 class Estimator(db.Model):
     __tablename__ = 'estimators'
     id = db.Column(db.Integer, primary_key=True)
-    estimator = db.Column(db.Text, nullable=False)
-    numerical_features_str = db.Column(db.Text, nullable=True)
-    text_features_str = db.Column(db.Text, nullable=True)
+    name = db.Column(db.String(64), nullable=False)
+    estimator = db.Column(db.Text, nullable=True)
+    performance = db.Column(db.String(64), default='')
+    status = db.Column(db.Boolean, default=False)
+    features_str = db.Column(db.Text, nullable=True)
     target = db.Column(db.String(64), nullable=False)
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.now)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     dataset_id = db.Column(db.Integer, db.ForeignKey('datasets.id'))
 
     def __repr__(self):
-        return '<Estimator {}+{}: {}'.format(self.text_features,
-                                             self.numerical_features,
+        return '<Estimator {}: {}'.format(self.features,
                                              self.target)
 
     @property
-    def numerical_features(self):
-        if self.numerical_features_str is not None:
-            return self.numerical_features_str.split('+')
+    def features(self):
+        if self.features_str is not None:
+            return self.features_str.split('+')
         else:
             return []
 
-    @numerical_features.setter
-    def numerical_features(self, n_features=list([])):
-        self.numerical_features_str = '+'.join(n_features)
+    @features.setter
+    def features(self, n_features=list([])):
+        self.features_str = '+'.join(n_features)
 
-    @property
-    def text_features(self):
-        if self.text_features_str is not None:
-            return self.text_features_str.split('+')
-        else:
-            return []
-
-    @text_features.setter
-    def text_features(self, t_features=list([])):
-        self.text_features_str = '+'.join(t_features)

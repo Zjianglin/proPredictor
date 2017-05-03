@@ -9,6 +9,10 @@ class Config:
     FLASKY_MAIL_SENDER = 'Flasky Admin <zjianglin@foxmail.com>'
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN')
     UPLOADED_DATASETS_DEST = os.path.join(basedir, 'app', 'static', 'datasets')
+    REDIS_QUEUE_KEY = 'PROCESS_DURATION_PREDICT'
+    CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+    CELERY_BACKEND_URL = 'redis://127.0.0.1:6379/0'
+    ITEMS_PER_PAGE = 3
 
     @staticmethod
     def init_app(app):

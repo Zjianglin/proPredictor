@@ -5,17 +5,22 @@ from flask_mail import Mail
 from flask_moment import Moment
 from flask_login import LoginManager
 from flask_uploads import UploadSet, configure_uploads, patch_request_class
-from config import config
+from config import config, Config
+from celery import Celery
+import os
 
 bootstrap = Bootstrap()
 mail = Mail()
 moment = Moment()
 db = SQLAlchemy()
+celery = Celery(__name__, broker=Config.CELERY_BROKER_URL)
+
 datasets = UploadSet('datasets', extensions=['csv'])
 
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
 login_manager.login_view = 'auth.login'
+
 
 def create_app(config_name):
     app = Flask(__name__)
@@ -29,10 +34,32 @@ def create_app(config_name):
     login_manager.init_app(app)
     configure_uploads(app, datasets)
     patch_request_class(app)
-    #appendix route and custom error handlers
+    celery.conf.update(app.config)
+    #celery.init_app(app)
+
+    # appendix route and custom error handlers
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
+
     from .auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
 
     return app
+
+
+def create_celery_app(app=None):
+    from celery import Celery
+    app = app or create_app(os.getenv('FLASK_CONFIG') or 'default')
+    celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+    celery.conf.update(app.config)
+    TaskBase = celery.Task
+
+    class ContextTask(TaskBase):
+        abstract = True
+
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return TaskBase.__call__(self, *args, **kwargs)
+
+    celery.Task = ContextTask
+    return celery

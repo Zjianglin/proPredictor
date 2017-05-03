@@ -19,3 +19,7 @@ class SearchDataset(FlaskForm):
     dataset_id = IntegerField('', validators=[DataRequired()], render_kw={
                             "placeholder": "Enter target dataset id"})
     submit = SubmitField('Search')
+
+class BuildModelForm(FlaskForm):
+    features = StringField('numerical features', id='features')
+    submit = SubmitField('Build', id='build')

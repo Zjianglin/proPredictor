@@ -9,17 +9,20 @@ from ..models import User
 @main.route('/', methods=['GET', 'POST'])
 @login_required
 def index():
-    form = NameForm()
-    if form.validate_on_submit():
-        #...
-        return redirect(url_for('.index'))
-    return render_template('index.html', form=form,
-                           name=session.get('name'),
-                           known=session.get('known', False),
-                           current_time=datetime.utcnow())
+    return render_template('index.html')
 '''
 @main.route('/datasets')
 @login_required
 def datasets():
     return render_template('datasets.html')
 '''
+
+@main.route('/404')
+@login_required
+def error_404():
+    return render_template('404.html')
+
+@main.route('/500')
+@login_required
+def error_500():
+    return render_template('500.html')

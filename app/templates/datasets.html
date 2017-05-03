@@ -23,10 +23,7 @@
                     <td>{{ dataset.name }}</td>
                     <td>{{ dataset.timestamp }}</td>
                     <td>
-                        <a href="{{ url_for('main.features_index') }}">Apply</a>
-                        <a href="{{ url_for('main.delete_dataset', id=dataset.id) }}">
-                            Delete
-                        </a>
+                        {{ render_op(dataset.id) }}
                     </td>
                 </tr>
                 {% endfor %}
@@ -34,3 +31,10 @@
         </table>
     </div>
 {% endblock %}
+
+{% macro render_op(id)%}
+    <a href="{{ url_for('main.features_index') }}"
+        class="btn-success">Apply</a> |
+    <a href="{{ url_for('main.delete_dataset', id=id) }}"
+        class="btn-danger">Del</a>
+{% endmacro %}

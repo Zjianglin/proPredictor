@@ -13,8 +13,116 @@
     </div>
 
     {% if analyse %}
-        <div class="panel-body">
-            <li>Analyse test</li>
+        <div class="container">
+            <div class="tabbable" id="tabs-866124">
+            <ul class="nav nav-tabs">
+                <li class="active">
+                     <a href="#panel-988934" data-toggle="tab">Dataset Summary</a>
+                </li>
+                <li>
+                     <a href="#panel-923655" data-toggle="tab">Datset describe</a>
+                </li>
+                <li>
+                     <a href="#panel-923656" data-toggle="tab">Correlation Analysis</a>
+                </li>
+                <li>
+                     <a href="#panel-923657" data-toggle="tab">Build Model</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane active" id="panel-988934">
+                    {% for info in statistics.get('summary') %}
+                    <li> {{ info }} </li>
+                    {% endfor %}
+                </div>
+                <div class="tab-pane" id="panel-923655">
+                    <h4>Numberical features only</h4>
+                    <table class="table table-hover table-responsive ">
+                    <thead>
+                        <th>Feature</th>
+                        <th>count(non-null)</th>
+                        <th>mean</th>
+                        <th>std</th>
+                        <th>min</th>
+                        <th>25%</th>
+                        <th>50%</th>
+                        <th>75%</th>
+                        <th>max</th>
+                    </thead>
+                    <tbody>
+                    {% for f_name, f_info in statistics.get('describe', {}).items() %}
+                        <tr>
+                            <td>{{ f_name }}</td>
+                            <td>{{ f_info.get('count') }}</td>
+                            <td>{{ '{:.2f}'.format(f_info.get('mean')) }}</td>
+                            <td>{{ '{:.2f}'.format(f_info.get('std')) }}</td>
+                            <td>{{ '{:.2f}'.format(f_info.get('min')) }}</td>
+                            <td>{{ '{:.2f}'.format(f_info.get('25%')) }}</td>
+                            <td>{{ '{:.2f}'.format(f_info.get('50%')) }}</td>
+                            <td>{{ '{:.2f}'.format(f_info.get('75%')) }}</td>
+                            <td>{{ '{:.2f}'.format(f_info.get('max')) }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                </div>
+                <div class="tab-pane" id="panel-923656">
+                    <table class="table table-hover table-responsive ">
+                    <thead>
+                        <th>Feature</th>
+                        <th>mic</th>
+                    </thead>
+                    <tbody>
+                    {% for corr in statistics.get('correlection') %}
+                        {% for f, c in statistics.get('correlection')[corr].items() %}
+                        <tr>
+                            <td>{{ f }}</td>
+                            <td>{{ '{:.2f}'.format(c) }}</td>
+                        </tr>
+                        {% endfor%}
+                    {% endfor %}
+                    </tbody>
+                    </table>
+                </div>
+
+                <div class="tab-pane" id="panel-923657">
+                    <div id="build_model_form" title="创建新Model">
+                        <form class="form-horizontal" role="form" method="post" action="{{ url_for('main.build_model') }}">
+                            <div class="form-group">
+                                <label for="target" class="col-sm-2 control-label">target variable</label>
+                                <div class="col-md-10">
+                                    <input type="text" name="target" id="target" class="form-control">
+                                </div>
+                                <div class="help-block with-errors"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="features" class="col-sm-2 control-label">features</label>
+                                <div class="col-md-10">
+                                    <input type="text" name="features" id="features" class="form-control">
+                                </div>
+                                <div class="help-block with-errors"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="name" class="col-sm-2 control-label">Estimator Name</label>
+                                <div class="col-md-10">
+                                    <input type="text" name="name" id="name" class="form-control">
+                                </div>
+                                <div class="help-block with-errors"></div>
+                            </div>
+                            <!-- The hidden field -->
+                            <input type="hidden" name="filepath" id="filepath"
+                                   value="{{ statistics.get('filepath') }}"/>
+                            <div class="form-group">
+                                <div class="col-sm-offset-6">
+                                  <button type="build" class="btn btn-default">Build</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div>
         </div>
     {% endif %}
+
 {% endblock %}
