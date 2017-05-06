@@ -70,8 +70,8 @@ class Estimator(db.Model):
     __tablename__ = 'estimators'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False)
-    estimator = db.Column(db.Text, nullable=True)
-    performance = db.Column(db.String(64), default='')
+    estimator = db.Column(db.LargeBinary(65536), nullable=True)
+    performance = db.Column(db.Text, default='')
     status = db.Column(db.Boolean, default=False)
     features_str = db.Column(db.Text, nullable=True)
     target = db.Column(db.String(64), nullable=False)

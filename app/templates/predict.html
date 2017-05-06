@@ -4,10 +4,61 @@
 {% block page_content %}
     <div class="page-header">
         <h1> Predict</h1>
+        <div class="container">
+            Fill features, click &nbsp;<b>Predict</b>&nbsp; to get predicted value.
+        </div>
+    </div>
+    <!--
+    <div class="alert alert-warning" id="predict_error">
+    </div>
+    -->
+
+    <div class="container panel-body">
+        <div>
+            <h4>Features</h4>
+        </div>
+        <form class="form-horizontal" id="features_form" role="form">
+          {% for feature in params.features %}
+          <div class="form-group col-xs-3">
+            <label for="{{ feature }}" class="sr-only">{{ feature }}</label>
+            <input type="number" class="form-control" name="{{ feature }}"
+                   id="{{ feature }}"
+                   placeholder="{{ feature }}" required>
+          </div>
+          {% endfor %}
+            <input type="hidden" name="id" id="id" value="{{ params.get('id') }}"/>
+            <button type="submit" class="btn btn-primary" id="predict">Predict</button>
+        </form>
     </div>
 
-    <div class="container">
+    <div class="container panel-body">
+        <div class="row">
+            <h4>Target <small>{{ params.get('target') }}</small></h4>
+            <div class="alert-success" id="target"></div>
+        </div>
 
     </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script type=text/javascript>
+
+ $('#predict').click(function (e) {
+        e.preventDefault();
+        $.ajax({
+			url: "{{ url_for('main.predict_active') }}",
+			data: $('#features_form').serialize(),
+			type: 'POST',
+			success: function(response){
+				$('#target').text(response.result);
+			},
+			error: function(error){
+				$('#predict_error').text(error.result);
+			}
+		});
+    });
+</script>
 
 {% endblock %}

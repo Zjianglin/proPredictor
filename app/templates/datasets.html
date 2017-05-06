@@ -1,12 +1,17 @@
 {% extends 'base.html' %}
 {% import "bootstrap/wtf.html" as wtf %}
+{% from "bootstrap/pagination.html" import render_pagination %}
 
 {% block title %}Datasets{% endblock %}
 
 {% block page_content %}
     <div class="panel-heading row">
         <span>New Dataset</span>
-        {{ wtf.quick_form(form, form_type='inline') }}
+        <label class="file">
+           {{ wtf.quick_form(form, form_type='inline', extra_classes='file-custom') }}
+          <span class="file-custom"></span>
+        </label>
+
     </div>
     <div class="table-bordered">
         <table class="table table-hover table-responsive ">
@@ -17,7 +22,7 @@
                 <th>option</th>
             </thead>
             <tbody>
-                {%   for dataset in datasets %}
+                {%   for dataset in datasets.items %}
                 <tr>
                     <td>{{ dataset.id }}</td>
                     <td>{{ dataset.name }}</td>
@@ -30,11 +35,14 @@
             </tbody>
         </table>
     </div>
+    <div class="tab-pane">
+            {{render_pagination(datasets, prev='Prev', next='Next')}}
+    </div>
 {% endblock %}
 
 {% macro render_op(id)%}
     <a href="{{ url_for('main.features_index') }}"
-        class="btn-success">Apply</a> |
+        class="btn btn-success">Apply</a> |
     <a href="{{ url_for('main.delete_dataset', id=id) }}"
-        class="btn-danger">Del</a>
+        class="btn btn-danger">Del</a>
 {% endmacro %}

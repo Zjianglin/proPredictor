@@ -7,15 +7,18 @@ from flask_login import LoginManager
 from flask_uploads import UploadSet, configure_uploads, patch_request_class
 from config import config, Config
 from celery import Celery
+from werkzeug.serving import is_running_from_reloader
+from redis import StrictRedis
+import atexit
 import os
-
 bootstrap = Bootstrap()
 mail = Mail()
 moment = Moment()
 db = SQLAlchemy()
-celery = Celery(__name__, broker=Config.CELERY_BROKER_URL)
-
+#celery = Celery(__name__, broker=Config.CELERY_BROKER_URL)
+redis = StrictRedis()
 datasets = UploadSet('datasets', extensions=['csv'])
+
 
 login_manager = LoginManager()
 login_manager.session_protection = 'strong'
@@ -34,8 +37,8 @@ def create_app(config_name):
     login_manager.init_app(app)
     configure_uploads(app, datasets)
     patch_request_class(app)
-    celery.conf.update(app.config)
-    #celery.init_app(app)
+
+    #celery.conf.update(app.config)
 
     # appendix route and custom error handlers
     from .main import main as main_blueprint

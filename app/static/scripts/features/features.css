@@ -1,0 +1,9 @@
+#tip {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    display: none;
+    z-index: 9999;
+    min-width: 200px;
+    text-align: center;
+}

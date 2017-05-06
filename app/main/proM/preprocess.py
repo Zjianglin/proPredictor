@@ -48,14 +48,10 @@ def get_correlection(dataset, target, features=set([])):
 
 def dataset_info(filepath):
     dataset = pd.read_csv(filepath)
-    summary = io.StringIO()
-    dataset.info(buf=summary, memory_usage=False, null_counts=True)
-    summary = summary.getvalue().split('\n')[1:]
     describe = dataset.describe().to_dict()
     corr = get_correlection(dataset, dataset.columns[0])
     return {
         'filepath': filepath,
-        'summary': summary,
         'describe': describe,
         'correlection': corr
     }

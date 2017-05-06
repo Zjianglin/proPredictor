@@ -25,7 +25,14 @@
                     <td>{{ estimator.id }}</td>
                     <td>{{ estimator.name }}</td>
                     <td>{{ estimator.target }}</td>
-                    <td>{{ estimator.performance }}</td>
+                    <td>
+                        <button type="button" id="performance_{{ estimator.id }}"
+                                class="btn btn-secondary"
+                                data-toggle="popover" title="Performance(MAE RMSE MAPE)"
+                                data-performance="{{estimator.performance }}">
+                            detail
+                        </button>
+                    </td>
                     <td>{{ estimator.timestamp }}</td>
                     <td>
                         {{ 'Ready' if estimator.status else 'Building' }}
@@ -46,11 +53,45 @@
 
 {% macro render_op(status, id) %}
     {% if status %}
-        <a href="{{ url_for('main.predict_index', id=id) }}"
-            class="btn-success">Apply</a> |
-        <a href="{{ url_for('main.estimators_delete', id=id) }}"
-           class="btn-danger">Del</a>
+        <a  class="btn btn-success" href="{{ url_for('main.predict_index', id=id) }}">Apply</a>
+          |
+        <a class="btn btn-danger" href="{{ url_for('main.estimators_delete', id=id) }}">Del</a>
+
     {% else %}
-        {{ 'Apply' }} | {{ 'Del' }}
+        <a  class="btn btn-default">{{ 'Apply' }}</a> |
+        <a  class="btn btn-default">{{ 'Del' }}</a>
     {% endif %}
 {% endmacro %}
+
+{% block scripts %}
+    {{ super() }}
+   <script type="text/javascript">
+        $(document).ready(function(){
+            $( "body" ).on('focus', ":input", function() {
+                var currentId = $(this).attr('id');
+                var data = display_performance($(this).attr('data-performance'));
+                if (currentId.indexOf("performance" > -1)) {
+                    $(this).popover({
+                        trigger: "hover",
+                        placement: "right",
+                        html: true,
+                        content: data
+                    })
+                }
+            })
+        });
+
+        function display_performance(p) {
+            var per = JSON.parse(p);
+            var baseline =  per['baseline'].split('\t');
+            var _this = per['performance'].split('\t');
+            baseline = "<p>Baseline: " + baseline[0] + ", "
+                                        + baseline[1] + ", "
+                                        + baseline[2] + "</p>";
+            _this = "<p>This    : " + _this[0] + ", "
+                                    + _this[1] + ", "
+                                    + _this[2] + "</p>";
+            return baseline + _this;
+        }
+</script>
+{% endblock %}

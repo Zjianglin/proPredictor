@@ -14,10 +14,10 @@ from sklearn import decomposition
 from sklearn import metrics
 import statistics
 from stop_words import get_stop_words
-from flask import jsonify
+from flask import json
 
 
-def cross_validation(self, model, X, y, cv=3):
+def cross_validation(model, X, y, cv=3):
     """Return (MAE, RMSE, MAPE)"""
     kf = KFold(n_splits=cv)
     xval_err = 0
@@ -71,11 +71,10 @@ def best_RFR(xdata, target, search=False, verbose=False):
 
 def train_model(X, y):
     estimator = best_RFR(X, y)
-    performace = cross_validation(estimator, X, y, cv=5)
+    performace = cross_validation(model=estimator, X=X, y=y, cv=5)
     performace = {
                 'baseline': baseline(y),
                 'performance': '{:.3f}\t{:.3f}\t{:.3f}'.format(
                     performace[0], performace[1], performace[2])
     }
-    print('after train model: ', performace)
-    return (estimator, jsonify(performace))
+    return (estimator,  json.dumps(performace))

@@ -1,9 +1,11 @@
 from datetime import datetime
+
 from flask import render_template, flash, session, redirect, url_for, current_app
 from flask import request
 from flask_login import login_required, current_user
+from .response import response, error
 from app import db, datasets
-from app.tasks import build_estimator
+from app.main.tasks import build_estimator
 from . import main
 from .forms import DatasetForm, SearchDataset, BuildModelForm
 from .proM import dataset_info
@@ -11,19 +13,22 @@ from ..models import Dataset, Estimator
 
 
 @main.route('/datasets', methods=['GET', 'POST'])
+@main.route('/datasets/<int:page>')
 @login_required
-def datasets_index():
+def datasets_index(page=1):
     form = DatasetForm()
-    datas = [ {'name': 'test_dataset_1.csv', 'id': 1, 'timestamp': '2017-4-10'},
-              {'name': 'test_dataset_2.csv', 'id': 2},
-              {'name': 'test_dataset_3.csv', 'id': 3}]
     if form.validate_on_submit():
         filename = datasets.save(form.dataset.data)
         new_dataset = Dataset(name=filename, user_id=current_user.id)
         db.session.add(new_dataset)
         flash('upload new dataset successfully')
-        datas.append(filename)
 
+    datas = Dataset.query \
+                    .filter_by(user_id=current_user.id) \
+                    .order_by(Dataset.timestamp.desc()) \
+                    .paginate(page=page,
+                              per_page=current_app.config['ITEMS_PER_PAGE'],
+                              error_out=False)
     return render_template('datasets.html', form=form, datasets=datas)
 
 @main.route('/dataset/del/<id>')
@@ -67,28 +72,21 @@ def features_index():
 @main.route('/models/build', methods=['POST'])
 @login_required
 def build_model():
-    params = request.form
-    features = [f.strip() for f in params.get('features')
-                                            .strip().split(',')
-                            if f.strip()]
-    target = params.get('target', '').strip()
-    name =   params.get('name', 'Estimator_{}'.format(
-                            datetime.utcnow())).strip()
-    filepath = params.get('filepath')
+    form = dict(request.get_json(force=True))
+
+    target = form['target']
+    features = form['features']
+    name =   form['name']
+    filepath = form['filepath']
+
     if not target:
-        flash('target is required', 'warning')
+        return error(400, "target is required"), 400
     elif not features:
-        flash('features at least one required')
+        return error(400, "features are required"), 400
     else:
         clf = Estimator(name=name, features=features, target=target,
                         user_id=current_user.id)
         db.session.add(clf)
-        db.session.commit()
-        print('add new esitmator...')
-        #build a model async
-        build_estimator.delay(clf=clf, filepath=filepath,
+        build_estimator(clf=clf, filepath=filepath,
                               target=target, features=features)
-        flash('Building the model...', 'info')
-
-    return redirect('/features')
-
+        return response(200, url_for('main.estimators_index'))

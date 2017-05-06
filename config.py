@@ -12,7 +12,7 @@ class Config:
     REDIS_QUEUE_KEY = 'PROCESS_DURATION_PREDICT'
     CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
     CELERY_BACKEND_URL = 'redis://127.0.0.1:6379/0'
-    ITEMS_PER_PAGE = 3
+    ITEMS_PER_PAGE = 7
 
     @staticmethod
     def init_app(app):

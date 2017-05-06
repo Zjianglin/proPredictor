@@ -17,12 +17,12 @@ def datasets():
     return render_template('datasets.html')
 '''
 
-@main.route('/404')
+@main.errorhandler(404)
 @login_required
-def error_404():
-    return render_template('404.html')
+def error_404(e):
+    return render_template('404.html'), 404
 
-@main.route('/500')
+@main.errorhandler(500)
 @login_required
-def error_500():
-    return render_template('500.html')
+def error_500(e):
+    return render_template('500.html'), 500

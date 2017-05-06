@@ -8,7 +8,7 @@
             You can search the atrget dataset by its id.
         </h4>
     </div>
-    <div class="panel-footer">
+    <div class="input-group-addon">
         {{ wtf.quick_form(form, form_type='inline')  }}
     </div>
 
@@ -17,9 +17,6 @@
             <div class="tabbable" id="tabs-866124">
             <ul class="nav nav-tabs">
                 <li class="active">
-                     <a href="#panel-988934" data-toggle="tab">Dataset Summary</a>
-                </li>
-                <li>
                      <a href="#panel-923655" data-toggle="tab">Datset describe</a>
                 </li>
                 <li>
@@ -29,13 +26,9 @@
                      <a href="#panel-923657" data-toggle="tab">Build Model</a>
                 </li>
             </ul>
+            </div>
             <div class="tab-content">
-                <div class="tab-pane active" id="panel-988934">
-                    {% for info in statistics.get('summary') %}
-                    <li> {{ info }} </li>
-                    {% endfor %}
-                </div>
-                <div class="tab-pane" id="panel-923655">
+                <div class="tab-pane active" id="panel-923655">
                     <h4>Numberical features only</h4>
                     <table class="table table-hover table-responsive ">
                     <thead>
@@ -85,44 +78,102 @@
                     </table>
                 </div>
 
-                <div class="tab-pane" id="panel-923657">
+                <div class="tab-pane " id="panel-923657">
                     <div id="build_model_form" title="创建新Model">
-                        <form class="form-horizontal" role="form" method="post" action="{{ url_for('main.build_model') }}">
+                        <form class="form-horizontal" role="form" method="post" id="estimator-form">
                             <div class="form-group">
+                                <div class="row">
                                 <label for="target" class="col-sm-2 control-label">target variable</label>
-                                <div class="col-md-10">
-                                    <input type="text" name="target" id="target" class="form-control">
-                                </div>
+                                <div class="col-lg-6">
+                                    <select name="target" id="target" class="selectpicker" data-live-search="true">
+                                        {% for fea in statistics.get('describe').keys()%}
+                                            <option>{{ fea }}</option>
+                                        {% endfor %}
+                                    </select>
                                 <div class="help-block with-errors"></div>
+                                </div>
+                                </div>
                             </div>
                             <div class="form-group">
+                                <div class="row">
                                 <label for="features" class="col-sm-2 control-label">features</label>
-                                <div class="col-md-10">
-                                    <input type="text" name="features" id="features" class="form-control">
-                                </div>
+                                <div class="col-lg-6">
+                                    <select name="features" id="features" class="selectpicker"
+                                            multiple>
+                                        {% for fea in statistics.get('describe').keys()%}
+                                            <option>{{ fea }}</option>
+                                        {% endfor %}
+                                    </select>
                                 <div class="help-block with-errors"></div>
+                                </div>
+                                </div>
                             </div>
                             <div class="form-group">
+                                <div class="row">
                                 <label for="name" class="col-sm-2 control-label">Estimator Name</label>
-                                <div class="col-md-10">
-                                    <input type="text" name="name" id="name" class="form-control">
+                                <div class="col-lg-6">
+                                    <input type="text" name="name" id="name" class="col-xs-4 form-control" required>
+                                    <div class="help-block with-errors"></div>
                                 </div>
-                                <div class="help-block with-errors"></div>
+                                </div>
                             </div>
-                            <!-- The hidden field -->
-                            <input type="hidden" name="filepath" id="filepath"
-                                   value="{{ statistics.get('filepath') }}"/>
                             <div class="form-group">
-                                <div class="col-sm-offset-6">
-                                  <button type="build" class="btn btn-default">Build</button>
+                                <div class="col-lg-6 col-lg-offset-2">
+                                    <!-- The hidden field -->
+                                    <input type="hidden" name="filepath" id="filepath"
+                                           value="{{ statistics.get('filepath') }}"/>
+                                  <button type="submit" class="btn btn-success">Build</button>
                                 </div>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
-            <div>
         </div>
     {% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='scripts/features/myflash.js') }}" type="text/javascript"></script>
+    <script type="text/javascript">
+
+    $(document).ready(function () {
+        $('.selectpicker').selectpicker();
+
+        $("#estimator-form").on('submit', function (e) {
+            e.preventDefault();
+            var features = $('#features').val();
+            var target = $('#target').val();
+            if (features === null) {
+                return ShowWarn("Features is required.", $('#features'));
+            }
+            if (features.indexOf(target) > -1) {
+                return ShowWarn("Features shouldn't include target.", $('#features'));
+            }
+            data = {
+                'target': target,
+                'features': features,
+                'filepath': $('#filepath').val(),
+                'name':     $('#name').val()
+            };
+
+            $.ajax({
+			url: "{{ url_for('main.build_model') }}",
+			data: JSON.stringify(data),
+			type: 'POST',
+			ajaxSend: ShowMsg("Model is building, wait please"),
+			success: function(response){
+				ShowSuccess('Model is built successfully.Redirect now!');
+                top.location.href = response.result;
+			},
+			error: function(error){
+				ShowFailure('Failed to build model.Please correct your input.');
+			}
+		    });
+        });
+    })
+</script>
 
 {% endblock %}
