@@ -7,7 +7,7 @@ _base_dic = {
 }
 
 def error(code,msg):
-    return flask.jsonify(status=code,msg=msg)
+    return flask.jsonify(msg=msg), code
 
 def response(code, result):
-    return flask.jsonify(status=code, result=result)
+    return flask.jsonify(result=result), code

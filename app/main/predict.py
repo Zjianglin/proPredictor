@@ -27,14 +27,15 @@ def predict_index(id):
 def predict_active():
     params = request.form
     if '' in params.values():
-        return error(400, 'features must be filled totally.'), 400
+        return error(400, 'features must be filled totally.')
     estimator = Estimator.query.filter_by(id=params.get('id'),
                                           status=1).first_or_404();
     xdata = Series([params.get(k) for k in estimator.features],
                     index=estimator.features)
     estimator = loads(estimator.estimator)
     #print(estimator)
-    target = estimator.predict(xdata.values.reshape(1, -1))
+    target = estimator.predict(xdata.values.reshape(1, -1))[0]
+    target = '{:.3f}'.format(target)
     print(target)
 
-    return response(200, list(target))
+    return response(200, target)

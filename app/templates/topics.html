@@ -1,0 +1,284 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% from "bootstrap/pagination.html" import render_pagination %}
+
+{% block page_content %}
+    <div class="panel-heading row">
+          <div class="col-md-3">
+                <h2>Topic</h2>
+          </div><!-- /.col-lg-6 -->
+          <div class="col-md-4 text-right" >
+              <h2>
+            <div class="input-group">
+              <span class="input-group-btn">
+                <button class="btn btn-primary btn-md" data-toggle="modal" data-target="#topicModal" type="button">
+                    <span class="glyphicon glyphicon-plus"></span>Add Topic
+                </button>
+              </span>
+            </div><!-- /input-group -->
+              </h2>
+          </div><!-- /.col-lg-6 -->
+    </div><!-- /.row -->
+    <div class="panel-body">
+        <div class="panel-group" id="accordion">
+        {% for topic in topics.items %}
+            <div class="panel panel-default" id="panel_{{ topic.id }}">
+                <div class="panel-heading row">
+                    <div class="col-md-10">
+                        <h4>
+                        <a data-toggle="collapse" data-parent="#accordion" aria-expanded="false"
+                           data-target="#{{ topic.id }}" style="margin-left: auto">
+                            {{ topic.name }}
+                        </a>
+                        </h4>
+                    </div>
+                    <div class="col-md-2 text-right">
+                        <button class="btn btn-danger" href="{{ url_for('main.topic_delete', id=topic.id)}}"
+                           style="margin-right: auto" name="delTopic">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+                <div id="{{ topic.id }}" class="panel-collapse collapse">
+                  <p class="lead">{{ topic.describe }}</p>
+                  <div class="row">
+                    <div class="col-xs-12 col-sm-6 col-md-8">
+                        <div class="">
+                             {% if topic.estimators %}
+                                <div class="table-bordered" >
+                                    <table class="table table-hover table-responsive ">
+                                    <thead>
+                                        <th>id</th>
+                                        <th>name</th>
+                                        <th>target</th>
+                                        <th>timestamp</th>
+                                        <th>operation</th>
+                                    </thead>
+                                    <tbody>
+                                    {% for estimator in topic.estimators %}
+                                        <tr>
+                                            <td>{{ estimator.id }}</td>
+                                            <td>{{ estimator.name }}</td>
+                                            <td>{{ estimator.target }}</td>
+                                            <!--
+                                            <td>
+                                                <button type="button" id="performance_{{ estimator.id }}"
+                                                        class="btn btn-secondary"
+                                                        data-toggle="popover" title="Performance(MAE RMSE MAPE)"
+                                                        data-performance="{{estimator.performance }}">
+                                                    detail
+                                                </button>
+                                            </td>
+                                            -->
+                                            <td>{{ estimator.timestamp }}</td>
+                                            <!--
+                                            <td>
+                                                {{ 'Ready' if estimator.status else 'Building' }}
+                                            </td>
+                                            -->
+                                            <td>{{ render_op(estimator.status, estimator.id) }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                    </table>
+                                </div>
+                             {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-md-4">
+                        {% if topic.chart %}
+                        <div class="thumbnail">
+                            <a href="#" class="thumbnail">
+                                <img src="{{ url_for('static', filename= 'img/' + topic.name.replace(' ', '_') + '.png') }}" alt="no chart"/>
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                  </div>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+        <div class="tab-pane center-block">
+            {{render_pagination(topics, prev='Prev', next='Next')}}
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade bs-example-modal-md" id="topicModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document" >
+        <div class="modal-content" style="background-color: #ffffff;">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Add topic</h4>
+          </div>
+          <div class="modal-body">
+            <form class="form-horizontal" id="topic_form" role="form">
+              <div class="form-group">
+                  <label for="name" class="control-label">Name</label>
+                  <input type="text" class="form-control" id="name" required>
+              </div>
+              <div class="form-group">
+                  <label for="describe" class="control-label" >Describe</label>
+                  <textarea class="form-control" id="describe"></textarea>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="addTopic">Confirm</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- The Modal -->
+    <div id="imgModal" class="modal fade bs-example-modal-md">
+        <div  role="document">
+            <div class="modal-content">
+                <div class="model-header text-center">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><strong aria-hidden="true">&times;close</strong></button>
+                    <h3 class="modal-title" id="myModalLabel">Estimators performance compare</h3>
+                </div>
+                <div class="modal-body text-center">
+                    <img class="modal-content" src="" id="performance_img"/>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% macro render_op(status, id) %}
+    {% if status %}
+        <a  class="btn btn-success" href="{{ url_for('main.predict_index', id=id) }}">Apply</a>
+          |
+        <a class="btn btn-danger" href="{{ url_for('main.estimators_delete', id=id) }}">Del</a>
+
+    {% else %}
+        <a  class="btn btn-default">{{ 'Apply' }}</a> |
+        <a  class="btn btn-default">{{ 'Del' }}</a>
+    {% endif %}
+{% endmacro %}
+
+{% block scripts %}
+    {{ super() }}
+    <script src="http://bootboxjs.com/bootbox.js"></script>
+    <script src="{{ url_for('static', filename='scripts/features/myflash.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $( ".panel-body" ).on('focus', ":input", function() {
+                var currentId = $(this).attr('id');
+                if (currentId && currentId.indexOf("performance" > -1)) {
+                    var data = display_performance($(this).attr('data-performance'));
+                    $(this).popover({
+                        trigger: "hover",
+                        placement: "right",
+                        html: true,
+                        content: data
+                    })
+                }
+            })
+        });
+
+        $(document).ready(function() {
+            $("#topic_form").on('submit', function (e) {
+
+                e.preventDefault();
+                var name = $("#name").val();
+                var describe = $("#describe").val();
+                $.ajax({
+                    url: "{{ url_for('main.topic_insert') }}",
+                    data: JSON.stringify({'name': name, 'describe': describe}),
+                    type: 'POST',
+                    contentType:'application/json; charset=UTF-8',
+                    dataType: 'json',
+                    success: function (response) {
+                        var topic = response.result;
+                        var link = $('<a class="collapsed" data-toggle="collapse" data-parent="#accordion" aria-expanded="false"></a>')
+                                        .attr("data-target", "#" + topic['id'] + "").text(topic['name']);
+                        var del = $('<button class="btn btn-danger" style="margin-right: auto" name="delTopic"> \
+                                    </button>').attr('href', "/topic/del/" + topic.id)
+                            .text("Delete");
+                        var h4 = $('<h4></h4>').html(link);
+                        var h4_div = $('<div class="col-md-10"></div>').html(h4);
+                        var del_div = $('<div class="col-md-2 text-right"></div>').html(del);
+                        var heading = $('<div class="panel-heading row"></div>').html(h4_div).append(del_div);
+                        var p = "<p>" + topic.describe + "</p>";
+                        var body = $('<div class="panel-body"></div>').html(p);
+                        var collapse = $('<div class="panel-collapse collapse"></div>')
+                            .attr("id", topic.id).html(body);
+                        var panel = $('<div class="panel panel-default"></div>')
+                            .attr("id", "panel_" + topic.id)
+                            .html(heading).append(collapse);
+                        $("#accordion").prepend(
+                            panel
+                        );
+                        $("#topicModal").modal('hide');
+                        $("#topic_form").trigger('reset');
+                        ShowSuccess("Add topic successfully");
+                    },
+                    error: function (error) {
+                        ShowFailure(error.responseJSON.msg);
+                    }
+                });
+
+            });
+        });
+
+        $(document).ready(function () {
+           $("button[name='delTopic']").on('click', function () {
+               var warning = "Are you sure want to delete this topic?\ " +
+                             "If yes, all estimators in this topic will be deleted as well.";
+               var url = $(this).attr('href');
+               bootbox.confirm(warning, function(result) {
+                   console.log(url, result);
+                   if (result) {
+                       $.ajax({
+                           url: url,
+                           type: 'DELETE',
+                           success: function(result) {
+                                // Do something with the result
+                               $("#panel_" + url.split("/")[3]).remove();
+                               ShowSuccess(result.result);
+                            },
+                           error: function (error) {
+                                ShowFailure(error.responseJSON.msg);
+                            }
+                       })
+                   }
+                });
+           })
+        });
+
+        $(document).ready(function () {
+           $('img').on('click', function () {
+               console.log($(this).attr('src'));
+               $('#performance_img').attr('src', $(this).attr('src'));
+               $('#performance_img').css({
+                    'border-radius': '5px',
+                    'cursor': 'pointer',
+                    'transition': '0.3s',
+                });
+               $("#imgModal").css({
+                   'overflow-y': 'auto'
+               });
+               $('#imgModal').modal('toggle');
+
+           })
+        });
+        function display_performance(p) {
+            var per = JSON.parse(p);
+            var baseline =  per['baseline'].split('\t');
+            var _this = per['performance'].split('\t');
+            baseline = "<p>Baseline: " + baseline[0] + ", "
+                                        + baseline[1] + ", "
+                                        + baseline[2] + "</p>";
+            _this = "<p>This    : " + _this[0] + ", "
+                                    + _this[1] + ", "
+                                    + _this[2] + "</p>";
+            return baseline + _this;
+        }
+    </script>
+{% endblock %}

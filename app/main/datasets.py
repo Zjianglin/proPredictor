@@ -5,11 +5,12 @@ from flask import request
 from flask_login import login_required, current_user
 from .response import response, error
 from app import db, datasets
-from app.main.tasks import build_estimator
+from app.main.tasks import build_estimator, update_chart
 from . import main
 from .forms import DatasetForm, SearchDataset, BuildModelForm
 from .proM import dataset_info
-from ..models import Dataset, Estimator
+from ..models import Dataset, Estimator, Topic
+import os
 
 
 @main.route('/datasets', methods=['GET', 'POST'])
@@ -40,21 +41,22 @@ def delete_dataset(id):
     else:
         db.session.delete(data)
         db.session.commit()
+        os.remove(os.path.join(
+            current_app.config['UPLOADED_DATASETS_DEST'], data.name))
         flash('Succeed to delete dataset: {}'.format(data.name), 'info')
     return redirect(url_for('main.datasets_index'))
 
 @main.route('/features', methods=['GET', 'POST'])
 @login_required
 def features_index():
-    search = SearchDataset()
-    build_form = BuildModelForm()
     statistics = dict()
     session['analyse'] = False
-    if search.validate_on_submit():
-        dataset = Dataset.query.filter_by(id=search.dataset_id.data).first()
+    if request.method == 'POST':
+        #print(request.form)
+        dataset = Dataset.query.filter_by(id=request.form['id']).first()
         if dataset is None or dataset.user_id != current_user.id:
             flash('You have no dataset with id {}'.format(
-                    search.dataset_id.data), 'error')
+                request.form['id']), 'error')
         else:
             path = current_app.config['UPLOADED_DATASETS_DEST'] + '/'\
                                     + dataset.name
@@ -64,8 +66,7 @@ def features_index():
             except Exception as err:
                 flash(err, 'error')
 
-    return render_template('features.html', form=search,
-                           build_form=build_form,
+    return render_template('features.html',
                            statistics=statistics,
                            analyse=session.get('analyse', False))
 
@@ -77,16 +78,19 @@ def build_model():
     target = form['target']
     features = form['features']
     name =   form['name']
+    topic_id = form['topic_id']
     filepath = form['filepath']
 
     if not target:
-        return error(400, "target is required"), 400
+        return error(400, "target is required")
     elif not features:
-        return error(400, "features are required"), 400
+        return error(400, "features are required")
     else:
         clf = Estimator(name=name, features=features, target=target,
-                        user_id=current_user.id)
+                        topic_id=topic_id, user_id=current_user.id)
         db.session.add(clf)
         build_estimator(clf=clf, filepath=filepath,
                               target=target, features=features)
-        return response(200, url_for('main.estimators_index'))
+        topic = Topic.query.filter_by(id=topic_id).first()
+        update_chart(topic)
+        return response(200, url_for('main.topic_index'))

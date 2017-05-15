@@ -2,32 +2,35 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block page_content %}
-    <div class="jumbotron">
-        <h1> Welcome</h1>
-        <p>
-            <strong>Dataset</strong>&nbsp;&nbsp;You can upload and browser your dataset here.
-            Your dataset must be <span>csv</span> format, and the first column must be target
-            variable.<i>And we assume that you have preprocessed your dataset such as text
-            features vectoring, Imputation of missing values, normalization and so on.</i>
-        </p>
-        <p>
-            <strong>Features</strong>
-            You can analyses the target dataset here, including its describe and featurs'
-            Corrlection with target variable.What's more, you could select interested features
-            to build a predictable model to use later.
-        </p>
+    <div class="panel-body">
+        <div class="jumbotron">
+            <h2>ATP is a great way to analysis business process event log.</h2>
+            <p>
+                <strong>Dataset</strong>&nbsp;&nbsp;You can upload and browser your dataset here.
+                Your dataset must be <span>csv</span> format, and the first column must be target
+                variable.<i>And we assume that you have preprocessed your dataset such as text
+                features vectoring, Imputation of missing values, normalization and so on.</i>
+            </p>
+            <p>
+                <strong>Feature</strong>
+                You can analyses the target dataset here, including its describe and featurs'
+                Corrlection with target variable.What's more, you could select interested features
+                to build a predictable model to use later.
+            </p>
 
-        <p>
-            <strong>Model</strong>
-            You can browser your predictable models here. Choose one to make a predict online.
-        </p>
-    </div>
-    <div class="panel-footer">
-        <p>
-            <strong>Note</strong>
-            All the online functions have good designed API, you can easily integrated into
-            your system.
-        </p>
+            <p>
+                <strong>Topic</strong>
+                You can browser your topics here.Especially you can browser and compare
+                predictable models here, choose one to make a predict online.
+            </p>
+        </div>
+        <div class="panel-footer">
+            <p>
+                <strong>Note</strong>
+                All the online functions have good designed API, you can easily integrated into
+                your system.
+            </p>
+        </div>
     </div>
 
 {% endblock %}

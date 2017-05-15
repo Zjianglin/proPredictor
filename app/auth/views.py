@@ -23,7 +23,6 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash('You have been ogged out')
     return redirect(url_for('main.index'))
 
 @auth.route('/auth/register', methods=['GET', 'POST'])
@@ -42,7 +41,6 @@ def register():
                     'auth/email/confirm', user=user, token=token)
         flash('A confirmation email has been sent to you be email')
         '''
-        flash('Registered successfully. Welcome!')
         return redirect(url_for('main.index'))
     return render_template('auth/register.html', form=form)
 

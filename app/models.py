@@ -13,7 +13,7 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(64), unique=True, index=True)
     password_hash = db.Column(db.String(128), nullable=False)
     confirmed = db.Column(db.Boolean(), default=False)
-    estimators = db.relationship('Estimator', backref='user')
+    topics = db.relationship('Topic', backref='user')
     datasets = db.relationship('Dataset', backref='user')
 
     def __repr__(self):
@@ -56,7 +56,6 @@ class Dataset(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), nullable=False, unique=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    estimators = db.relationship('Estimator', backref='dataset')
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
     def __repr__(self):
@@ -76,8 +75,8 @@ class Estimator(db.Model):
     features_str = db.Column(db.Text, nullable=True)
     target = db.Column(db.String(64), nullable=False)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.now)
+    topic_id = db.Column(db.Integer, db.ForeignKey('topics.id'))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    dataset_id = db.Column(db.Integer, db.ForeignKey('datasets.id'))
 
     def __repr__(self):
         return '<Estimator {}: {}'.format(self.features,
@@ -94,3 +93,23 @@ class Estimator(db.Model):
     def features(self, n_features=list([])):
         self.features_str = '+'.join(n_features)
 
+class Topic(db.Model):
+    __tablename__ = 'topics'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), nullable=False, unique=True)
+    describe = db.Column(db.Text, nullable=True)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.now)
+    estimators = db.relationship('Estimator', cascade='all,delete', backref='topic')
+    chart = db.Column(db.String(1024), unique=True)   #performace compare chart src
+    chart_clfs = db.Column(db.Integer, default=0)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'describe': self.describe
+        }
+
+    def chart_is_lastest(self):
+        return len(self.estimators) == self.chart_clfs

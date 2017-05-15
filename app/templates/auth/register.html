@@ -1,14 +1,22 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
-{% block title %} Flasky - Login {% endblock %}
+{% block title %} sign up to ATP {% endblock %}
 
 {% block page_content %}
-    <div class="page-header">
-        <h1>Register</h1>
-    </div>
-    <div class="col-md-4">
-        {{ wtf.quick_form(form) }}
+    <div class="container">
+        <div class="row">
+          <div class="col-md-offset-4">
+              <h1>Join ATP</h1>
+              <p class="lead">The great way to analysis process</p>
+          </div>
+          <div class="col-md-4 col-md-offset-4 well" style="background-color: #ffffff">
+                <div class="form-horizontal">
+                  {{ wtf.quick_form(form, button_map={"submit": "btn btn-success"}) }}
+
+                </div>
+          </div>
+        </div>
     </div>
 
 {% endblock %}

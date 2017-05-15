@@ -2,16 +2,23 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block page_content %}
-    <div class="page-header">
-        <h2> Analyse Dataset.</h2>
-        <h4>Including statistics and Feature correlation analysis.
-            You can search the atrget dataset by its id.
-        </h4>
+    <div class="panel-heading row">
+        <div class="col-md-4">
+            <h2>Feature</h2>
+        </div>
+        <div class="col-md-4 col-md-offset-1">
+            <h2>
+            <form class="form-inline row input-group" action="{{ url_for('main.features_index') }}" method="post">
+              <input type="text" class="form-control" placeholder="Enter target dataset id" id="id" name="id">
+              <span class="input-group-btn">
+                <button class="btn btn-primary" type="submit">
+                    <span class="glyphicon glyphicon-search"></span> Search
+                </button>
+              </span>
+            </form>
+            </h2>
+        </div>
     </div>
-    <div class="input-group-addon">
-        {{ wtf.quick_form(form, form_type='inline')  }}
-    </div>
-
     {% if analyse %}
         <div class="container">
             <div class="tabbable" id="tabs-866124">
@@ -77,8 +84,8 @@
                     </tbody>
                     </table>
                 </div>
-
-                <div class="tab-pane " id="panel-923657">
+                <div class="tab-pane" id="panel-923657">
+                    <br/>
                     <div id="build_model_form" title="创建新Model">
                         <form class="form-horizontal" role="form" method="post" id="estimator-form">
                             <div class="form-group">
@@ -110,9 +117,20 @@
                             </div>
                             <div class="form-group">
                                 <div class="row">
+                                <label for="topic_id" class="col-sm-2 control-label">topic</label>
+                                <div class="col-xs-3">
+                                    <select name="topic_id" id="topic_id" class="selectpicker"
+                                            data-live-search="true" required>
+                                    </select>
+                                <div class="help-block with-errors"></div>
+                                </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="row">
                                 <label for="name" class="col-sm-2 control-label">Estimator Name</label>
-                                <div class="col-lg-6">
-                                    <input type="text" name="name" id="name" class="col-xs-4 form-control" required>
+                                <div class="col-xs-3">
+                                    <input type="text" name="name" id="name"  class="form-control" required>
                                     <div class="help-block with-errors"></div>
                                 </div>
                                 </div>
@@ -122,7 +140,7 @@
                                     <!-- The hidden field -->
                                     <input type="hidden" name="filepath" id="filepath"
                                            value="{{ statistics.get('filepath') }}"/>
-                                  <button type="submit" class="btn btn-success">Build</button>
+                                  <button type="submit" class="btn btn-success" >Build</button>
                                 </div>
                             </div>
                         </form>
@@ -140,7 +158,7 @@
     <script type="text/javascript">
 
     $(document).ready(function () {
-        $('.selectpicker').selectpicker();
+        $('.selectpicker').selectpicker('refresh');
 
         $("#estimator-form").on('submit', function (e) {
             e.preventDefault();
@@ -155,6 +173,7 @@
             data = {
                 'target': target,
                 'features': features,
+                'topic_id': $('#topic_id').val(),
                 'filepath': $('#filepath').val(),
                 'name':     $('#name').val()
             };
@@ -173,7 +192,29 @@
 			}
 		    });
         });
-    })
+    });
+
+    $(document).ready(function (){
+            $.ajax({
+			url: "{{ url_for('main.topic_ids') }}",
+			type: 'Get',
+			success: function(response){
+                var topics = response.result;
+                $("#topic_id").empty();
+                for (var i = 0; i < topics.length; i++) {
+                    $("#topic_id").append(
+                        $("<option></option>").attr(
+                            "value", topics[i][0]).text(topics[i][1])
+                    );
+                }
+                $('#topic_id').selectpicker('refresh');
+
+			},
+			error: function(error){
+				ShowFailure('Failed to get topics information.Refresh please');
+			}
+		    });
+    });
 </script>
 
 {% endblock %}

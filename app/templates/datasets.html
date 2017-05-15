@@ -6,12 +6,19 @@
 
 {% block page_content %}
     <div class="panel-heading row">
-        <span>New Dataset</span>
-        <label class="file">
-           {{ wtf.quick_form(form, form_type='inline', extra_classes='file-custom') }}
-          <span class="file-custom"></span>
-        </label>
-
+        <div class="col-md-3">
+            <h2>Dataset</h2>
+        </div><!-- /.col-lg-6 -->
+        <div class="col-md-4 col-md-offset-4">
+            <h5>
+            <div class="input-group">
+                <label class="file">
+                {{ wtf.quick_form(form, form_type='inline', extra_classes='file-custom') }}
+                <span class="file-custom"></span>
+                </label>
+            </div><!-- /input-group -->
+            </h5>
+        </div><!-- /.col-lg-6 -->
     </div>
     <div class="table-bordered">
         <table class="table table-hover table-responsive ">
@@ -41,8 +48,11 @@
 {% endblock %}
 
 {% macro render_op(id)%}
-    <a href="{{ url_for('main.features_index') }}"
-        class="btn btn-success">Apply</a> |
+    <form action="{{ url_for('main.features_index') }}" method="post" role="form">
+        <input type="hidden" class="form-control" name="id" value="{{ id }}">
+        <button class="btn btn-success" type="submit"> Apply</button>
+    |
     <a href="{{ url_for('main.delete_dataset', id=id) }}"
         class="btn btn-danger">Del</a>
+    </form>
 {% endmacro %}

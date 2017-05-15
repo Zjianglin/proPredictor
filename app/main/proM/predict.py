@@ -36,7 +36,7 @@ def cross_validation(model, X, y, cv=3):
         #     model.score(X_test, y_test)))
     return (abs_err / cv, xval_err / cv, abs_per_err / cv)
 
-def baseline(ydata):
+def average_total_flow(ydata):
     if not isinstance(ydata, pd.Series):
         ydata = pd.Series(ydata)
 
@@ -44,8 +44,24 @@ def baseline(ydata):
     base_rmse = np.sqrt(mean_squared_error(ydata, base_pred))
     base_mae = mean_absolute_error(ydata, base_pred)
     base_mape = np.average(np.abs(ydata - base_pred) / ydata)
-    return '{:.3f}\t{:.3f}\t{:.3f}'.format(
+    return '{:.2f}\t{:.2f}\t{:.4f}'.format(
                     base_mae, base_rmse, base_mape)
+def average_recent_10(ydata):
+    if not isinstance(ydata, pd.Series):
+        ydata = pd.Series(ydata)
+    k = 10 if ydata.size >= 10 else ydata.size
+    base_pred = [ydata[-k:].mean()] * ydata.shape[0]
+    base_rmse = np.sqrt(mean_squared_error(ydata, base_pred))
+    base_mae = mean_absolute_error(ydata, base_pred)
+    base_mape = np.average(np.abs(ydata - base_pred) / ydata)
+    return '{:.2f}\t{:.2f}\t{:.4f}'.format(
+        base_mae, base_rmse, base_mape)
+
+def baseline(ydata):
+    return {
+        'average_total_flow': average_total_flow(ydata),
+        'average_recent_10': average_recent_10(ydata)
+    }
 
 def best_RFR(xdata, target, search=False, verbose=False):
     '''using grid search to find the optimal RandomForestRegressor model'''
@@ -71,10 +87,8 @@ def best_RFR(xdata, target, search=False, verbose=False):
 
 def train_model(X, y):
     estimator = best_RFR(X, y)
-    performace = cross_validation(model=estimator, X=X, y=y, cv=5)
-    performace = {
-                'baseline': baseline(y),
-                'performance': '{:.3f}\t{:.3f}\t{:.3f}'.format(
-                    performace[0], performace[1], performace[2])
-    }
-    return (estimator,  json.dumps(performace))
+    performance = cross_validation(model=estimator, X=X, y=y, cv=5)
+    performance = dict(performance='{:.2f}\t{:.2f}\t{:.4f}'.format(
+                    performance[0], performance[1], performance[2]))
+    performance.update(baseline(y))
+    return (estimator,  json.dumps(performance))
