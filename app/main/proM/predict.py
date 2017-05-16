@@ -36,24 +36,49 @@ def cross_validation(model, X, y, cv=3):
         #     model.score(X_test, y_test)))
     return (abs_err / cv, xval_err / cv, abs_per_err / cv)
 
-def average_total_flow(ydata):
-    if not isinstance(ydata, pd.Series):
-        ydata = pd.Series(ydata)
+def average_total_flow(y, cv=10):
+    if not isinstance(y, pd.Series):
+        y = pd.Series(y)
 
-    base_pred = [ydata.mean()] * ydata.shape[0]
-    base_rmse = np.sqrt(mean_squared_error(ydata, base_pred))
-    base_mae = mean_absolute_error(ydata, base_pred)
-    base_mape = np.average(np.abs(ydata - base_pred) / ydata)
+    kf = KFold(n_splits=cv)
+    xval_err = 0
+    abs_err = 0
+    abs_per_err = 0
+    for train_id, test_id in kf.split(y):
+        y_train = y[train_id]
+        y_test = y[test_id]
+        y_pred = [y_train.mean()] * y_test.shape[0]
+        abs_err += mean_absolute_error(y_test, y_pred)
+        abs_per_err += np.average(np.abs(y_test - y_pred) / y_test)
+        xval_err += np.sqrt(mean_squared_error(y_test, y_pred))
+
+    base_mae = abs_err / cv
+    base_rmse = xval_err / cv
+    base_mape = abs_per_err / cv
+
     return '{:.2f}\t{:.2f}\t{:.4f}'.format(
                     base_mae, base_rmse, base_mape)
-def average_recent_10(ydata):
-    if not isinstance(ydata, pd.Series):
-        ydata = pd.Series(ydata)
-    k = 10 if ydata.size >= 10 else ydata.size
-    base_pred = [ydata[-k:].mean()] * ydata.shape[0]
-    base_rmse = np.sqrt(mean_squared_error(ydata, base_pred))
-    base_mae = mean_absolute_error(ydata, base_pred)
-    base_mape = np.average(np.abs(ydata - base_pred) / ydata)
+def average_recent_10(y, cv=10):
+    if not isinstance(y, pd.Series):
+        y = pd.Series(y)
+
+    kf = KFold(n_splits=cv)
+    xval_err = 0
+    abs_err = 0
+    abs_per_err = 0
+    for train_id, test_id in kf.split(y):
+        y_train = y[train_id]
+        y_test = y[test_id]
+        k = 10 if y_train.shape[0] >= 10 else y_train.shape[0]
+        y_pred = [y_train[-k:].mean()] * y_test.shape[0]
+        abs_err += mean_absolute_error(y_test, y_pred)
+        abs_per_err += np.average(np.abs(y_test - y_pred) / y_test)
+        xval_err += np.sqrt(mean_squared_error(y_test, y_pred))
+
+    base_mae = abs_err / cv
+    base_rmse = xval_err / cv
+    base_mape = abs_per_err / cv
+
     return '{:.2f}\t{:.2f}\t{:.4f}'.format(
         base_mae, base_rmse, base_mape)
 
