@@ -5,14 +5,14 @@
 {% block page_content %}
     <div class="panel-heading row">
           <div class="col-md-3">
-                <h2>Topic</h2>
+                <h2>Subject</h2>
           </div><!-- /.col-lg-6 -->
           <div class="col-md-4 text-right" >
               <h2>
             <div class="input-group">
               <span class="input-group-btn">
                 <button class="btn btn-primary btn-md" data-toggle="modal" data-target="#topicModal" type="button">
-                    <span class="glyphicon glyphicon-plus"></span>Add Topic
+                    <span class="glyphicon glyphicon-plus"></span>Add Subject
                 </button>
               </span>
             </div><!-- /input-group -->
@@ -34,7 +34,7 @@
                     </div>
                     <div class="col-md-2 text-right">
                         <button class="btn btn-danger" href="{{ url_for('main.topic_delete', id=topic.id)}}"
-                           style="margin-right: auto" name="delTopic">
+                           style="margin-right: auto" name="delSubject">
                             Delete
                         </button>
                     </div>
@@ -124,7 +124,7 @@
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button type="submit" class="btn btn-primary" id="addTopic">Confirm</button>
+                <button type="submit" class="btn btn-primary" id="addSubject">Confirm</button>
               </div>
             </form>
           </div>
@@ -198,7 +198,7 @@
                         var topic = response.result;
                         var link = $('<a class="collapsed" data-toggle="collapse" data-parent="#accordion" aria-expanded="false"></a>')
                                         .attr("data-target", "#" + topic['id'] + "").text(topic['name']);
-                        var del = $('<button class="btn btn-danger" style="margin-right: auto" name="delTopic"> \
+                        var del = $('<button class="btn btn-danger" style="margin-right: auto" name="delSubject"> \
                                     </button>').attr('href', "/topic/del/" + topic.id)
                             .text("Delete");
                         var h4 = $('<h4></h4>').html(link);
@@ -217,7 +217,7 @@
                         );
                         $("#topicModal").modal('hide');
                         $("#topic_form").trigger('reset');
-                        ShowSuccess("Add topic successfully");
+                        ShowSuccess("Add subject successfully");
                     },
                     error: function (error) {
                         ShowFailure(error.responseJSON.msg);
@@ -228,7 +228,7 @@
         });
 
         $(document).ready(function () {
-           $("button[name='delTopic']").on('click', function () {
+           $("button[name='delSubject']").on('click', function () {
                var warning = "Are you sure want to delete this topic?\ " +
                              "If yes, all estimators in this topic will be deleted as well.";
                var url = $(this).attr('href');

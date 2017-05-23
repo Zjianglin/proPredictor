@@ -18,7 +18,7 @@
             <label for="{{ feature }}" class="sr-only">{{ feature }}</label>
             <input type="number" class="form-control" name="{{ feature }}"
                    id="{{ feature }}"
-                   placeholder="{{ feature }}" required>
+                   placeholder="{{ feature }}">
           </div>
           {% endfor %}
             <input type="hidden" name="id" id="id" value="{{ params.get('id') }}"/>
@@ -40,6 +40,7 @@
 
 {% block scripts %}
     {{ super() }}
+    <script src="{{ url_for('static', filename='scripts/features/myflash.js') }}"></script>
     <script type=text/javascript>
 
  $('#predict').click(function (e) {
@@ -52,7 +53,7 @@
 				$('#target').text(response.result);
 			},
 			error: function(error){
-				$('#predict_error').text(error.result);
+				ShowFailure(error.responseJSON.msg);
 			}
 		});
     });

@@ -51,4 +51,4 @@ def topic_delete(id):
         os.remove(topic.chart)
     db.session.delete(topic)
     db.session.commit()
-    return response(200, "delete  topic [{}] successfully".format(topic.name))
+    return response(200, "delete  Subject [{}] successfully".format(topic.name))
