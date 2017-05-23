@@ -57,7 +57,7 @@ def update_chart(topic, filename=None):
         performance = json.loads(estimator.performance)
         for k, v in performance.items():
             if k == "performance":
-                k = estimator.name
+                k = estimator.name + '_RFR'
             pers[k] = [float(p) for p in v.split('\t')]
             pers[k][2] *= 100
     #print(pers)

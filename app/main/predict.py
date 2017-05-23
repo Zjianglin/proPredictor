@@ -26,11 +26,9 @@ def predict_index(id):
 @login_required
 def predict_active():
     params = request.form
-    if '' in params.values():
-        return error(400, 'features must be filled totally.')
     estimator = Estimator.query.filter_by(id=params.get('id'),
                                           status=1).first_or_404();
-    xdata = Series([params.get(k) for k in estimator.features],
+    xdata = Series([params.get(k, 0, type=float) for k in estimator.features],
                     index=estimator.features)
     estimator = loads(estimator.estimator)
     #print(estimator)

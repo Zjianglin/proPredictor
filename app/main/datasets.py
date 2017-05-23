@@ -22,7 +22,7 @@ def datasets_index(page=1):
         filename = datasets.save(form.dataset.data)
         new_dataset = Dataset(name=filename, user_id=current_user.id)
         db.session.add(new_dataset)
-        flash('upload new dataset successfully')
+        flash('upload new dataset successfully', 'success')
 
     datas = Dataset.query \
                     .filter_by(user_id=current_user.id) \
