@@ -19,7 +19,7 @@ import statistics
 from stop_words import get_stop_words
 
 
-def get_correlection(dataset, target, features=set([])):
+def get_correlation(dataset, target, features=set([])):
     if target is None:
         raise ValueError('corr() need target value')
     if not isinstance(dataset, pd.DataFrame):
@@ -49,11 +49,11 @@ def get_correlection(dataset, target, features=set([])):
 def dataset_info(filepath):
     dataset = pd.read_csv(filepath)
     describe = dataset.describe().to_dict()
-    corr = get_correlection(dataset, dataset.columns[0])
+    corr = get_correlation(dataset, dataset.columns[0])
     return {
         'filepath': filepath,
         'describe': describe,
-        'correlection': corr
+        'correlation': corr
     }
 
 def _topics_extraction_with_lda(X):

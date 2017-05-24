@@ -73,8 +73,8 @@
                         <th>mic</th>
                     </thead>
                     <tbody>
-                    {% for corr in statistics.get('correlection') %}
-                        {% for f, c in statistics.get('correlection')[corr].items() %}
+                    {% for corr in statistics.get('correlation') %}
+                        {% for f, c in statistics.get('correlation')[corr].items() %}
                         <tr>
                             <td>{{ f }}</td>
                             <td>{{ '{:.2f}'.format(c) }}</td>
